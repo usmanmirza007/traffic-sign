@@ -58,7 +58,7 @@ const Starter = () => {
 							Choose number of questions: {numQuestions}
 						</Text>
 						<View style={styles.sliderContainer}>
-							<Slider
+							{/* <Slider
 								style={styles.slider}
 								step={1}
 								minimumValue={10}
@@ -67,7 +67,7 @@ const Starter = () => {
 								maximumTrackTintColor={palette.accent}
 								onValueChange={updateNumQuestions}
 								thumbImage={Pawprint}
-							/>
+							/> */}
 						</View>
 					</View>
 

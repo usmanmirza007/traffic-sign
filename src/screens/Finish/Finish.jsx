@@ -1,5 +1,5 @@
 import { useNavigation } from "@react-navigation/native";
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import {
 	Text,
 	SafeAreaView,
@@ -26,10 +26,19 @@ const Finish = () => {
 	const screenDimensions = Dimensions.get("screen");
 	const styles = getStyles(screenDimensions);
 
+	const trafficQuestions1 = useMemo(() => {
+		const getRandomSubset = (trafficQuestions, subsetLength) => {
+			const shuffled = trafficQuestions.sort(() => Math.random() - 0.5); // Shuffle the array
+			return shuffled.slice(0, subsetLength); // Get a subset of specified length
+		}
+		const data = getRandomSubset(trafficQuestions, 5)
+		return data
+	}, [])
+
 	const getScore = () => {
 		let score = 0;
-		for (let i = 0; i < trafficQuestions.length; i++) {
-			if (trafficQuestions[i].correctAnswer === recordedAnswers[i].answer) {
+		for (let i = 0; i < trafficQuestions1.length; i++) {
+			if (trafficQuestions1[i].correctAnswer === recordedAnswers[i].answer) {
 				score++;
 			}
 		}
@@ -59,7 +68,7 @@ const Finish = () => {
 					<Text style={styles.endTitle}>All questions answered!</Text>
 
 					<Text style={styles.scoreAnnouncement}>
-						You scored {finalScore} out of {trafficQuestions.length}
+						You scored {finalScore} out of {trafficQuestions1.length}
 					</Text>
 
 					<LottieView
@@ -94,7 +103,7 @@ const Finish = () => {
 						<FlatList
 							data={recordedAnswers}
 							renderItem={({ item }) => (
-								<ResultItem questions={trafficQuestions} item={item} />
+								<ResultItem questions={trafficQuestions1} item={item} />
 							)}
 							keyExtractor={(item) => item.id}
 						/>

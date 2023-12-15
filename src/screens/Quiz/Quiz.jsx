@@ -1,23 +1,15 @@
 import { useNavigation } from "@react-navigation/native";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Text, SafeAreaView, ActivityIndicator, View, Dimensions } from "react-native";
 import CustomButton from "../../Components/CustomButton/CustomButton.jsx";
 import { useQuizContext } from "../../context/QuizContext.jsx";
 import GradientWrapper from "../../Components/GradientWrapper/GradientWrapper.jsx";
 
 import getStyles from "./Quiz.style.js";
-import {
-	getTrueFalseQuestions,
-	getSpecificNumberOfRegularQuestions,
-} from "../../api/quiz.js";
 import { trafficQuestions } from "../../helpers/helpers.js";
 
 const Quiz = () => {
 	const {
-		quizQuestions,
-		numQuestions,
-		questionType,
-		updateQuestions,
 		addAnswer,
 		counter,
 		updateCounter,
@@ -29,20 +21,15 @@ const Quiz = () => {
 	const [selectedOption, setSelectedOption] = useState("");
 
 	const navigation = useNavigation();
-
-	const endOfQuestions = counter === numQuestions - 1;
-
-	const fetchQuestions = async () => {
-		if (questionType === "True or False") {
-			const trueOrFalseQuestions = await getTrueFalseQuestions(numQuestions);
-			await updateQuestions(trueOrFalseQuestions);
-		} else {
-			const regularQuestions = await getSpecificNumberOfRegularQuestions(
-				numQuestions,
-			);
-			await updateQuestions(regularQuestions);
+	const trafficQuestions1 = useMemo(() => {
+		const getRandomSubset = (trafficQuestions, subsetLength) => {
+			const shuffled = trafficQuestions.sort(() => Math.random() - 0.5); // Shuffle the array
+			return shuffled.slice(0, subsetLength); // Get a subset of specified length
 		}
-	};
+		const data = getRandomSubset(trafficQuestions, 5)
+		return data
+	}, [])
+	const endOfQuestions = counter === trafficQuestions1?.length - 1;
 
 	const saveAnswer = (answer) => {
 		setSelectedOption(answer);
@@ -62,57 +49,7 @@ const Quiz = () => {
 		setSelectedOption("");
 	};
 
-	useEffect(() => {
-		fetchQuestions();
-	}, []);
-
-	const trafficSignTest = [
-  {
-    question: "What does this sign indicate?",
-    image: "image_url_1.jpg", // You can use image URLs if the signs need visual representation
-    options: [
-      "No U-turn",
-      "No overtaking",
-      "No parking",
-      "No entry"
-    ],
-    answer: 3 // Index of the correct answer in the options array (No entry)
-  },
-  {
-    question: "What does this sign mean?",
-    image: "image_url_2.jpg",
-    options: [
-      "Give way",
-      "Stop",
-      "Pedestrian crossing",
-      "Traffic lights ahead"
-    ],
-    answer: 0 // Index of the correct answer in the options array (Give way)
-  },
-  {
-    question: "Identify this sign:",
-    image: "image_url_3.jpg",
-    options: [
-      "Roundabout ahead",
-      "Merging traffic",
-      "No entry",
-      "Yield to oncoming traffic"
-    ],
-    answer: 2 // Index of the correct answer in the options array (No entry)
-  },
-  // Add more questions similarly
-];
-
-// Accessing the questions and answers
-// trafficSignTest.forEach((questionObj, index) => {
-//   console.log(`Question ${index + 1}: ${questionObj.question}`);
-//   console.log(`Options: ${questionObj.options.join(', ')}`);
-//   console.log(`Answer: ${questionObj.options[questionObj.answer]}\n`);
-// });
-
-console.log('quizQuestions[counter].answers', quizQuestions);
-
-	if (trafficQuestions.length === 0) {
+	if (trafficQuestions1.length === 0) {
 		return <ActivityIndicator />;
 	} else {
 		return (
@@ -121,11 +58,11 @@ console.log('quizQuestions[counter].answers', quizQuestions);
 					<View style={styles.gameContainer}>
 						<Text style={styles.title}>Question {counter + 1}</Text>
 						<Text style={styles.question}>
-							{trafficQuestions && trafficQuestions[counter].question}
+							{trafficQuestions1 && trafficQuestions1[counter]?.question}
 						</Text>
 						<View style={styles.buttonContainer}>
-							{trafficQuestions &&
-								trafficQuestions[counter].answers.map((answer, index) => (
+							{trafficQuestions1 &&
+								trafficQuestions1[counter]?.answers.map((answer, index) => (
 									<CustomButton
 										key={`${answer}-${index}`}
 										buttonText={answer}
