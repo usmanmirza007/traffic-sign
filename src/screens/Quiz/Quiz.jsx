@@ -65,7 +65,10 @@ const Quiz = () => {
 								trafficQuestions1[counter]?.answers.map((answer, index) => (
 									<CustomButton
 										key={`${answer}-${index}`}
+										index={index}
 										buttonText={answer}
+										choice={trafficQuestions1[counter]?.answers}
+										correctAnswer={trafficQuestions1[counter]?.correctAnswer}
 										onPress={() => saveAnswer(answer)}
 										type="primary"
 										fullWidth
