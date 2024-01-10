@@ -1,6 +1,6 @@
 import { useNavigation } from "@react-navigation/native";
 import React from "react";
-import { Text, SafeAreaView, View, Image, Dimensions } from "react-native";
+import { Text, SafeAreaView, View, Image, Dimensions, TouchableOpacity } from "react-native";
 import CustomButton from "../../Components/CustomButton/CustomButton.jsx";
 import quizCat from "../../assets/images/quizcat.png";
 import MaskedView from "@react-native-masked-view/masked-view";
@@ -22,7 +22,7 @@ const Starter = () => {
 
 	const navigation = useNavigation();
 
-	const canStart = numQuestions && questionType;
+	const canStart = numQuestions;
 
 	return (
 		<SafeAreaView style={styles.container}>
@@ -71,7 +71,7 @@ const Starter = () => {
 						</View>
 					</View>
 
-					<View style={styles.optionsContainer}>
+					{/* <View style={styles.optionsContainer}>
 						<View style={styles.questionType}>
 							<Text style={styles.subtitle}>
 								Choose question type: {questionType}
@@ -87,14 +87,19 @@ const Starter = () => {
 								/>
 							))}
 						</View>
-					</View>
-					<CustomButton
+					</View> */}
+					{/* <CustomButton
 						width="80%"
 						buttonText="start"
 						onPress={() => navigation.navigate("Quiz")}
 						disabled={!canStart}
 						type="secondary"
-					/>
+					/> */}
+					<TouchableOpacity disabled={!canStart} onPress={() => {
+						navigation.navigate("Quiz")
+					}}>
+						<Text>Start</Text>
+					</TouchableOpacity>
 				</View>
 			</View>
 			<Image
