@@ -1,7 +1,7 @@
-import { Text, Pressable, Dimensions, StyleSheet } from "react-native";
+import { Text, Pressable, Dimensions, StyleSheet, Animated } from "react-native";
 import getStyles from "./CustomButton.style";
 import palette from "../../styles/colours";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 
 const CustomButton = ({
@@ -17,139 +17,78 @@ const CustomButton = ({
 }) => {
 	const screenDimensions = Dimensions.get("screen");
 	const styles = getStyles(screenDimensions);
-	const [answers, setAnswers] = useState([...choice]);
+	const colorAnimation = useRef(new Animated.Value(0)).current;
+	const [animatedColor] = useState(new Animated.Value(0)); // Initialize animated value
+	const [isAnimating, setIsAnimating] = useState(false); // To track animation status
 	const [selectAnswer, setSelectAnswer] = useState('');
-	const [incorrectText, setIncorrectText] = useState('');
-	const [correctAnswerIndex, setCorrectAnswerIndex] = useState(null);
-	const [incorrectAnswerIndex, setIncorrectAnswerIndex] = useState(null);
-	const [allIndex, setAllIndex] = useState([]);
-	// const index1 = buttonText?.indexOf(correctAnswer)
-	// console.log('indexsdsd', allIndex, correctAnswerIndex, incorrectAnswerIndex);
 
-	useEffect(() => {
-
-		let arr = []
-		for (let index = 0; index < choice?.length; index++) {
-			// const element = array[index];
-			arr.push(index)
-
+	const animateBackground = () => {
+		if (!isAnimating) {
+			setIsAnimating(true);
+			Animated.timing(animatedColor, {
+				toValue: 1, // Change the value to 1 (completely green)
+				duration: 1000, // Animation duration in milliseconds
+				useNativeDriver: false, // Ensure to use JavaScript thread for animation
+			}).start(() => {
+				setIsAnimating(false); // Reset animation status
+			});
 		}
-		// arr.push(index)
-		setAllIndex([...arr])
-	}, []);
-	const handleAnswerClick = (index) => {
-    if (index === correctAnswerIndex) {
-      // Correct answer clicked
-      const updatedAnswers = choice?.map((answer, i) => {
-        return { text: answer, color: i === index ? 'green' : 'white' };
-      });
-      setAnswers(updatedAnswers);
-    } else {
-      // Incorrect answer clicked
-      const updatedAnswers = choice?.map((answer, i) => {
-        return {
-          text: answer,
-          color:
-            i === index ? 'red' : i === correctAnswerIndex ? 'green' : 'white',
-        };
-      });
-			onPress()
-      setAnswers(updatedAnswers);
-    }
-  };
-	let styleItem = {}
-	// useEffect(() => {
-	// 	if (selectAnswer == 'correct') {
-	// 		styleItem = {backgroundColor: 'yellow'}
-	// 	} else {
-	// 		if (allIndex.includes(correctAnswerIndex)) {
-	// 			styleItem = {backgroundColor: 'green'}
-	// 		}
-	// 		if (allIndex.includes(incorrectAnswerIndex) ) {
-	// 			styleItem = {backgroundColor: 'red'}
-	// 		}
-	// 	}
-	// }, [correctAnswerIndex, incorrectAnswerIndex]);
+	};
+
+	const backgroundColor = animatedColor.interpolate({
+		inputRange: [0, 1],
+		outputRange: ['red', 'green'],
+	});
+	let itemStyle = {}
 	return (
+		
+		// <Animated.View style={[{backgroundColor: '#fff'}, backgroundColor]}>
 		<Pressable
 			style={[
 				styles.button,
-				buttonStyle.getStyle(selectAnswer, width, correctAnswerIndex, incorrectAnswerIndex, allIndex, fullWidth)
+				{
+					width: width || "auto",
+					backgroundColor: selectAnswer == 'correct' ? 'green' : selectAnswer == 'incorrect' ? 'red' : 'white',
+					borderWidth: 2,
+					borderColor:  selectAnswer == 'correct' ? 'green' : selectAnswer == 'incorrect' ? 'red' : palette[type],
+					alignSelf: fullWidth ? "stretch" : "center",
+				},
+				itemStyle
 			]}
 			onPress={() => {
-				// let answerTime = null
+				if (buttonText === correctAnswer) {
+					setSelectAnswer('correct')
+				} else {
+					setSelectAnswer('incorrect')
+				}
+				let answerTime = setTimeout(() => {
+					onPress()
+					setSelectAnswer('')
+				}, 200)
 
-				// if (buttonText.includes(correctAnswer)) {
-				// 	setSelectAnswer('correct')
-				// 	answerTime = setTimeout(() => {
-				// 		onPress()
-				// 	}, 2000)
-				// } else {
-				// 	// const index = buttonText?.findIndex(fruit => fruit == correctAnswer);
-				// 	// console.log('correctAnswer', correctAnswer, buttonText);
-				// 	setSelectAnswer('incorrect')
-				// 	setIncorrectText(buttonText)
-				// 	const index1 = choice?.indexOf(correctAnswer)
-				// 	const index2 = choice?.indexOf(buttonText)
-				// 	// console.log('fofo', index1, index2);
-				// 	setCorrectAnswerIndex(index1)
-				// 	setIncorrectAnswerIndex(index2)
-				// 	answerTime = setTimeout(() => {
-				// 		onPress()
-				// 	}, 2000)
-				// }
-				// () => {
-				// 	clearTimeout(answerTime)
-				// }
-				handleAnswerClick(index)
+				return () => {
+					clearTimeout(answerTime)
+				}
+
 			}}
-			disabled={disabled}
+			disabled={selectAnswer ? true : false}
 		>
 			<Text
 				style={[
 					styles.buttonText,
-					{ color: disabled ? palette[type] : "white" },
+					{ color:  selectAnswer == 'correct' ? 'white' : selectAnswer == 'incorrect' ? 'white' : palette[type] },
 				]}
 			>
 				{buttonText}
 			</Text>
 		</Pressable>
+		// </Animated.View>
 	);
 };
 
 export default CustomButton;
 
 const buttonStyle = StyleSheet.create({
-	getStyle: (selectAnswer, width, correctAnswerIndex, incorrectAnswerIndex, allIndex, fullWidth) => {
-		let styleItem = {}
-		if (selectAnswer == 'correct') {
-			console.log('correct');
-			styleItem = { backgroundColor: 'yellow' }
-		} else {
-			if (allIndex.includes(correctAnswerIndex)) {
-				console.log('correct 1');
-				styleItem = { backgroundColor: 'green' }
-			}
-			if (allIndex.includes(incorrectAnswerIndex)) {
-				console.log('incorrect');
-				styleItem = { backgroundColor: 'red' }
-			}
-		}
-		return {
 
-			width: width || "auto",
-			// backgroundColor: selectAnswer == 'correct' ? 'green' : selectAnswer == 'incorrect' && ? 'red' && index == correctAnswer && 'green' :  'black',
-			// backgroundColor: index == 1 ? 'green' : index == 2 ? 'red' : 'black',
-			// backgroundColor: selectAnswer == 'correct' ? 'yellow'
-			// 	: selectAnswer == 'incorrect' ?
-			// 		allIndex.includes(correctAnswerIndex) && 'green' ||
-			// 		allIndex.includes(incorrectAnswerIndex) && 'red' : 'black',
-			// backgroundColor: styleItem,
-			...styleItem,
-			borderWidth: 2,
-			// borderColor: palette[type],
-			alignSelf: fullWidth ? "stretch" : "center",
-		}
-	}
 
 })
